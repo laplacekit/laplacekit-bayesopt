@@ -1,0 +1,82 @@
+[project]
+name = "laplacekit-bayesopt"
+version = "0.1a0"
+description = "Bayesian optimization with laplacekit: Laplace-approximated neural networks as BoTorch surrogates"
+readme = "README.md"
+authors = [{ name = "Agustinus Kristiadi", email = "agustinus@kristia.de" }]
+license = "MIT"
+requires-python = ">=3.13"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "laplacekit>=0.1a0,<0.2",
+  "laplacekit-marglik>=0.1a0,<0.2",
+  "botorch>=0.16",
+  "gpytorch>=1.14",
+]
+
+[project.entry-points."laplacekit.plugins"]
+laplacekit_bayesopt = "laplacekit_bayesopt:plugin"
+
+[project.urls]
+Homepage = "https://github.com/laplacekit/laplacekit-bayesopt"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["pytest>=8", "ty>=0.0.104", "ruff>=0.14"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+laplacekit = { git = "https://github.com/laplacekit/laplacekit", branch = "main" }
+laplacekit-marglik = { git = "https://github.com/laplacekit/laplacekit", branch = "main", subdirectory = "plugins/marglik" }
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "D"]
+# D105, D107: dunders and `__init__` are covered by the class docstring. D202: the house
+# style puts a blank line after a function's docstring.
+ignore = ["D105", "D107", "D202"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["laplacekit", "laplacekit_bayesopt"]
+
+[tool.ruff.lint.flake8-bugbear]
+# Frozen dataclasses, safe as argument defaults (B008).
+extend-immutable-calls = ["laplacekit_bayesopt.training.PosthocMarglik"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+"examples/**" = ["D", "E402"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+  # torch's own torch._decomp calls torch.jit.script, which warns on Python 3.14+. Not our code.
+  "ignore:`torch.jit.script` is not supported:FutureWarning:torch.jit._script",
+]
+
+# VS Code's Pylance reads this: it marks a class that misses a protocol method in red.
+[tool.pyright]
+typeCheckingMode = "standard"
+pythonVersion = "3.13"

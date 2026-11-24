@@ -1,6 +1,6 @@
 [project]
 name = "laplacekit-bayesopt"
-version = "0.1a0"
+version = "1.0"
 description = "Bayesian optimization with laplacekit: Laplace-approximated neural networks as BoTorch surrogates"
 readme = "README.md"
 authors = [{ name = "Agustinus Kristiadi", email = "agustinus@kristia.de" }]
